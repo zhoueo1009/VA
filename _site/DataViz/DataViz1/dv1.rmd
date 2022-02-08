@@ -45,7 +45,7 @@ The proposed design is as follows.
 
 ### 3.Proposed Visualisation
 
-Please view the interactive visualisation on [here]()
+Please view the interactive visualization on [here]()
 
 
 ### 4.Step-by-step Guide
@@ -56,7 +56,7 @@ Before getting started:
 Once open the excel file, we can find two tables. Upon observation, the initial chart is using table 2 with five years interval, instead of ten, which provide a more detailed overview regarding LFPR. 
 
 
-1. For each dataset(Female, Male and Total),select only the relevant cells. Create three new sheet and insert the cells respectively. Name the sheets"Female", "Male" and "Total" respectively.
+1. For each data set(Female, Male and Total), select only the relevant cells. Create three new sheets and insert the cells respectively. Name the sheets"Female", "Male" and "Total" respectively.
 2. Import data from the excel file, use Tableau to clean the data. 
    * Select Male table. We'll use tableau to create a pivot table.  Put Measure Values(`#`) in columns, Age(Years)/ Sex in row.
       + Hide numbers from 1991-2009, since we won't use them for the analyse.
@@ -70,20 +70,18 @@ Once open the excel file, we can find two tables. Upon observation, the initial 
      + Put the Measure Names under detail, so the toolkit will show year as an indicator. Export and save the data under the File `Data`. The Data file locates in the same home directory as dv1.rmd
    ![](images/06.png)
    
-   
    * Repeat the steps for the Female and Total as well.
-   
-
-
+   * Merge the three files into one workbook using MS Excel. Add a column "Category" to differentiate the data source.
+  
 
 **No.**|**Move**|**Action**|
 --- |--- |--- |
-```1|xxx|![](images/01.png)|
-2|xxx|![](images/02.png)|
-3|xxx|![](images/03.png)|
-4|xxx|![](images/04.png)|
-5|xxx|![](images/05.png)|
-6|xxx|![](images/06.png)|
+1|Import the cleaned dataset into Tableau.| |
+2|Create the a union by clicking on 'New Union' tab and drag the three tables in into the box.|![](images/07.png)|
+3|Adjust the name of the header, change the datatype accordingly. Edit the name of 'measure name' into LFPR|![](images/09.png)|
+4|Convert the LFPR into percentage(divided by 100) by adding a calculated field|![](images/10.png)|
+5|Add Age (Years) and YEAR to the Column tab and LFPR% to the Rows tab.|![](images/12.png)|
+```6|xxx|![](images/06.png)|
 7|xxx|![](images/07.png)|
 8|xxx|![](images/08.png)|
 9|xxx|![](images/09.png)|```
