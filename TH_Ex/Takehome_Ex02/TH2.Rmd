@@ -1,0 +1,210 @@
+---
+title: "Untitled"
+description: |
+  A new article created using the Distill format.
+author:
+  - name: Nora Jones 
+    url: https://example.com/norajones
+    affiliation: Spacely Sprockets
+    affiliation_url: https://example.com/spacelysprokets
+date: "`r Sys.Date()`"
+output: distill::distill_article
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+### Install Packages
+The packages required are `tidyverse` (included relevant packages for data analyses such as ggplot2, readr and dplyr),`ggiraph`,`plotly`,`DT`,`patchwork`,`gganimate`,`readxl`,`gifski`,`gapminder`,`knitr`,`flexdashboard`,`kableExtra`
+
+The code chunk below is used to install and load the required packages onto RStudio.
+```{r echo= TRUE}
+packages = c('ggiraph','plotly','DT','patchwork','gganimate','tidyverse','readxl','gifski','gapminder','knitr','flexdashboard')
+for (p in packages){
+  if(!require(p, character.only =T)){
+    install.packages(p)
+    }
+library(p,character.only =T)
+}
+```
+
+# **Take-home exercise 2**
+Design an age-sex pyramid based data visualization to show the changes of demographic structure of Singapore by age cohort and gender between 2000-2020 at planning area level.
+###Import data:
+```{r echo=TRUE}
+pop2010 <- read.csv("data/respopagesextod2000to2010.csv",head = T)
+pop2020 <- read.csv("data/respopagesextod2011to2020.csv",head = T)
+head(pop2010)
+head(pop2020)
+```
+Join two sheets together using `rbind()` in Base R:
+```{r echo=TRUE}
+pop_data <- rbind(pop2010, pop2020)
+```
+
+## A age-sex pyramid showing the demographic structure of Singapore by age cohort and gender at the planning area level. 
+### Data Wrangling  
+Select the columns that would be useful for data wrangling, since we only consider the population by gender and age.<br>
+Aggregate the population measure using `group_by` and `summaries` functions from the `dplyr` package to sum up population by *Sex*, *AG* and *PA*. <Edit later> 
+
+```{r echo=TRUE}
+age_sex <- pop_data %>% 
+  select(c("Sex", "AG","Pop","PA","Time")) %>%
+  group_by(`Sex`,`AG`,`PA`,`Time`) %>% 
+  summarise(Population=sum(Pop))%>%
+  ungroup()
+head(age_sex)
+```
+
+Upon observation we found out that the age group 5_to_9 appeared in the middle of the axis. For the next step, we prepare the dataframe by arranging the Age into different Age groups.
+
+```{r echo=TRUE}
+age_sex <- age_sex %>%
+  select(c("Sex", "AG","Population","PA","Time")) %>%
+  arrange(.,AG) %>%
+  mutate(AG = dplyr::case_when(
+    AG>= 00 & AG <10 ~ "00-09",
+    AG>= 10 & AG <20 ~ "10-19",
+    AG>= 20 & AG <30 ~ "20-29",
+    AG>= 30 & AG <40 ~ "30-39",
+    AG>= 40 & AG <50 ~ "40-49",   
+    AG>= 50 & AG <59 ~ "50-59",
+    AG>= 60 & AG <69 ~ "60-69",
+    AG>= 70 & AG <79 ~ "70-79",
+    AG>= 80 & AG <89 ~ "80-89",
+    AG>= 90 ~ "90_and_over"))
+
+head(age_sex)
+```
+Set the bar plots for male populations to the **left side** (thus *negative sign* `-`)  
+```{r echo = TRUE}
+age_sex$Population <- ifelse(age_sex$Sex == "Males", -1*age_sex$Population, age_sex$Population)
+```
+For further comparison on the PA level, we set the PA filter for **Ang Mo Kio** and **Bedok**. And create two dataframes, AS_AMK and AS_Bd
+```{r echo=TRUE}
+AS_AMK<-age_sex %>%
+  filter(., PA == 'Ang Mo Kio')
+
+AS_Bd<-age_sex %>%
+  filter(.,PA == 'Bedok')
+
+#check header
+kable(head(AS_AMK))
+kable(head(AS_Bd))
+```
+
+### The Static Plot
+Animation consist of individual pages. 
+Establish what the plot will display by mapping variables to aesthetics. A population pyramid is a special kind of bar graph. It displays male and female populations on back-to-back x axes. <br>
+Male population values were made negative. This allows a “mirror image” of the two graphs displayed along the shared x axis. <br>
+
+*Inserting geom_bar() for “Males” and “Females” respectively;<br>
+*Setting continuous y-axis scale using scale_y_continuous(). We have also customised a function for the “label” parameter to transform the negative Female population values back to positive, and to add a thousand mark for the ease of reading;<br>
+*Flipping ordinates using coord_flip(); and<br>
+*Inserting data labels, data source and legends, as shown in the following code chunks:
+```{r echo = TRUE}
+female_AMK <- AS_AMK %>%
+  filter(.,Sex == 'Females')
+male_AMK <- AS_AMK %>%
+  filter(.,Sex == 'Males')
+
+female_Bd <-AS_Bd %>% 
+  filter(.,Sex == "Females")
+male_Bd <-AS_Bd %>%
+  filter(.,Sex == "Males")
+```
+
+###Plotting
+```{r echo = TRUE}
+AS_AMK_p<- ggplot(AS_AMK, aes(x = AG, y = Population, fill = Sex)) + 
+  geom_bar(data = female_AMK, stat = "identity") +
+  geom_bar(data = male_AMK,stat = "identity") + 
+  xlab('Age Group') + 
+  ylab('Population Count') + 
+  ggtitle('Age-Sex pyramid - Demographic structure of Ang Mo Kio')+
+  coord_flip()
+
+AS_AMK_p
+```
+
+#### Formatting the x-axis
+The default scale of the x axis is also not easy to read.To reformat the x axis, seq in Base R is used to sequence the axis with each interval having a length of 50000, and the labels of the x-axis to range from 0 to 200000 on both ends.
+
+```{r echo = TRUE}
+xbrks <- seq(-500000, 500000, 100000)
+xlabls <- paste0(as.character(c(seq(500, 0, -100), seq(100, 500, 100))), "k")
+# creating new intervals and labels for x-axis
+```
+####Finalize the data for Ang Mo Kio
+```{r echo = TRUE}
+AS_AMK_p<- ggplot(AS_AMK, aes(x = AG, y = Population, fill = Sex)) + 
+  geom_bar(data=female_AMK,stat = "identity") +
+  geom_bar(data=male_AMK,stat = "identity") + 
+  scale_y_continuous(breaks = xbrks, labels=xlabls)+
+  xlab('Age Group') + 
+  ylab('Population Count') + 
+  ggtitle('Age-Sex pyramid - Demographic structure of Ang Mo Kio')+
+  coord_flip()
+
+AS_AMK_p
+```
+####Apply the similar code chunk for Bedok
+```{r echo = TRUE}
+AS_Bd_p<- ggplot(AS_Bd, aes(x = AG, y = Population, fill = Sex)) + 
+  geom_bar(data=female_Bd,stat = "identity") +
+  geom_bar(data=male_Bd,stat = "identity") + 
+  scale_y_continuous(breaks = xbrks, labels=xlabls)+
+  xlab('Age Group') + 
+  ylab('Population Count') + 
+  ggtitle('Age-Sex pyramid - Demographic structure of Bedok')+
+  coord_flip()
+
+AS_Bd_p
+```
+
+###Animation
+Next, use `transition_states` to plot the transition across Year. The transition_length and state_length give a relative length of the the transition and state, respectively. In this example, this produces a 1:2 ratio. The ease_aes function describes how the tweening takes place between states.
+We try out with **Ang Mo Kio** first:
+
+```{r echo=TRUE}
+library(ggplot2)
+library(gganimate)
+AS_AMK_ani<-ggplot(AS_AMK, aes(x = AG, y = Population, fill = Sex)) + 
+  geom_bar(data=female_AMK,stat = "identity") +
+  geom_bar(data=male_AMK,stat = "identity") + 
+  xlab('Age Group') + 
+  ylab('Population Count') + 
+  # Here comes the gganimate code
+  transition_states(Time,transition_length = 3, state_length = 1, wrap=TRUE) +
+  enter_fade() +
+  exit_fade()+
+  labs(title = 'Year: {frame_time}', 
+       x = '% AG', 
+       y = '% Population') +
+  transition_time(Year) +
+  ease_aes('cute-in-out')
+
+```
+
+Then plot for Bedok area:<br>
+```{r echo=TRUE}
+AS_Bd_ani<-ggplot(AS_Bd, aes(x = AG, y = Population, fill = Sex)) + 
+  geom_bar(data=female_Bd,stat = "identity") +
+  geom_bar(data=male_Bd,stat = "identity") + 
+  xlab('Age Group') + 
+  ylab('Population Count') + 
+  # Here comes the gganimate code
+  transition_states(Time,transition_length = 3, state_length = 1, wrap=TRUE) +
+  enter_fade() +
+  exit_fade()+
+  labs(title = 'Year: {frame_time}', 
+       x = '% AG', 
+       y = '% Population') +
+  transition_time(Year) +
+  ease_aes('cubic-in-out')
+
+```
+
+### Render
+We want to produce a gif using gifski. **gifski** converts video frames to GIF animations using pngquant's fancy features for efficient cross-frame palettes and temporal dithering. It produces animated GIFs that use thousands of colors per frame.

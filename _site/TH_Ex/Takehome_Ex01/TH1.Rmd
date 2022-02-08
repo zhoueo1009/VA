@@ -1,0 +1,160 @@
+---
+title: "Plot pareto chart and pyramid graph using ggplot2 in R."
+description: |
+  Take home exercise 1 (two tasks) for ISSS608 Visual Analytics and Applications
+author:
+  - name: Zhou Yiou
+    url: https://example.com/norajones
+    affiliation: MITB SMU
+    affiliation_url: https://example.com/spacelysprokets
+date: "`r Sys.Date()`"
+output: distill::distill_article
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+
+```{r}
+packages = c('tidyverse', 'readxl', 'knitr')
+
+for(p in packages){
+  if(!require(p, character.only = T)){
+    install.packages(p)
+  }
+  library(p, character.only = T)
+}
+```
+
+
+# **Task 1** 
+## Plot pareto chart 
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+orders <- read_xls("data/Superstore-2021.xls",
+                  sheet = "Orders")
+returns <- read_xls("data/Superstore-2021.xls",
+                  sheet = "Returns")
+
+# join orders table and returns table
+joined_tab <- left_join(returns, orders,
+                        by = c('Order ID' = 'Order ID'))
+# compute the frequency of returns in regard of different sub-categories
+# method 1 group_by()
+freq_returned <- joined_tab %>%
+  group_by(`Sub-Category`) %>%
+  summarise('Returns' = n()) %>%
+  ungroup()
+# sort the data set in descending order
+freq_sorted <- freq_returned %>%
+  arrange(desc(Returns))
+# Computing the cumulative frequency
+
+# compute the cumulative frequency of returns by product sub-category. This task will be performed by using `mutate()` of dplyr package and cumsum() of Base R.
+freq_cum <- freq_sorted %>%
+  mutate(cumfreq = cumsum(Returns))
+
+# check the structure and content of the tibble data frame 
+str(freq_cum)
+```
+
+
+1. sort data first by **returns** then by **sub-category**
+
+2. plot the Pareto graph in *three* steps:  
+       1).plot the number of returns in points: `geom_points(y = cumfreq)`  
+       2).connect the points: `geom_path(y = cumfreq)`    
+       3).plot second y axis using the `sec.axis` argument in `scale_y_continuous`. Create the percentage by define the total return using `max(freq_cum$cumfreq)`  
+
+3. adjust the *ticks* on the *x-axis* using `theme(axis,te.x = element_text())`, set angle argument to 90
+ 
+```{r echo = TRUE}
+total_return <- max(freq_cum$cumfreq)
+pareto_cum <- ggplot(data = freq_cum, aes(x = reorder(`Sub-Category`, -Returns), y = Returns)) +
+  geom_bar(aes(y = Returns),fill = 'deepskyblue4', stat = 'identity') +
+  geom_point(aes(y = cumfreq), color = rgb(0,1,0), pch = 16, size = 1) +
+  geom_line(aes(y = cumfreq, group = 1), color = "grey", lty = 1, size = 0.8) +
+  scale_y_continuous(sec.axis = sec_axis(~(./total_return)*100, name = "Cumulative returns in%")) + 
+  labs(title = "Pareto Plot: frequency of returns in different sub-categories", subtitle = "More than 80% of the returns are generated from 9 major sub-categories", x = 'Sub-Category') +
+  theme(axis.text.x = element_text(angle = 90))
+pareto_cum
+```
+### Tableau vs. R (ggplot2) in regard of data visualization  
+
+Tableau is great for basic data exploration, visualization, and processing - table join, filter, etc., is very straightforward, relatively comprehensive, and interactive. Whereas, R is a language rather than software that encourages the users to write their scripts or find appropriate libraries to conduct the analysis, such as ggplot2. R provides more flexibility than Tableau regarding the type of visualization the users can generate.
+Tableau is more hands-on and straightforward for data exploration and visualization,  but one might also face the risk of being locked into a single product. In contrast, R is more flexible yet requires more effort to generate interactive charts. However, users can easily export them into PNG or even web apps.
+
+
+***
+# **Task 2**
+## Create a pyramid graph using ggplot2  
+* A age-sex pyramid showing the demographic structure of Singapore by age cohort and gender. 
+
+```{r}
+packages = c('tidyverse')
+for(p in packages){
+   if (!require(p,character.only = T)){
+      install.packages(p)
+   }
+   library(p, character.only = T)
+}
+```
+  
+### Data Import
+Importing data-set using `read_csv()` of `readr` package, useful for reading delimited files into a `tibble`  
+
+```{r echo=TRUE}
+# Reading the csv file as a tbl_df
+df_pop <- read_csv("data/respopagesextod2011to2020.csv")
+# Inspecting the structure of the data-set
+str(df_pop)
+```
+
+### Data Wrangling  
+Select the columns that would be useful for data wrangling, rename for more intuitive ones from ‘AG’, ‘Pop’ and 'Time' to ‘Age_Group’, ‘Population’ and ‘Year’, respectively.  
+
+```{r echo=TRUE}
+df_pop <- df_pop %>%
+  rename('Age_Group'='AG',
+         'Population'='Pop',
+         'Year' = 'Time')
+# verify if the columns have been renamed correctly
+colnames(df_pop)
+```
+
+TOD (Type of Dwelling),Planning_Area and Year will not be used in the visualization, therefore it is necessary to aggregate the population measure excluding those levels of detail. This can be achieved by using `group_by` and `summaries` functions from the `dplyr` package to sum up population by *Sex* and *Age_Group*.  
+
+```{r echo = TRUE}
+agg_pop <- df_pop %>% 
+  select(c("Sex", "Age_Group","Population")) %>%
+  group_by(Sex,Age_Group) %>% 
+  summarise(Population=sum(Population))
+head(agg_pop)
+```
+
+Print the exhaustive list of **Age_group** categories for verification.
+
+```{r echo = TRUE}
+agg_pop$Age_Group <- as.factor(agg_pop$Age_Group)
+levels(agg_pop$Age_Group)
+```
+
+Set the bar plots for male populations to the **left side** (thus *negative sign* `-`)  
+
+```{r echo = TRUE}
+agg_pop$Population <- ifelse(agg_pop$Sex == "Males", -1*agg_pop$Population, agg_pop$Population)
+```
+
+Create age-sex pyramid: pyramid charts are two bar charts with axes flipped  
+
+```{r echo = TRUE}
+pyramid_pop <- ggplot(agg_pop, aes(x = Age_Group, y = Population, fill = Sex)) + 
+  geom_bar(data = subset(agg_pop, Sex == "Females"), stat = "identity") +
+  geom_bar(data = subset(agg_pop, Sex == "Males"),stat = "identity") + 
+  scale_y_continuous(labels = paste0(as.character(c(seq(2, 0, -1), seq(1, 2, 1))), "m")) + 
+  labs(title="Women outlive men", subtitle = "Imbalanced gender distribution in the 'above 75' age-groups in Singapore")+
+  coord_flip()
+
+pyramid_pop
+```
+
