@@ -13,9 +13,9 @@ navbar:
     - text: "DataViz Makeover"
       menu:
       - text: "DataViz Makeover 1"
-        href: "Dataviz1"
+        href: DataViz\DataViz1\dv1.html
       - text: "Dataviz Makeover 2"
-        href: "Dataviz2"
+        href: DataViz\DataViz2\dv2.html
     - text: "Take-home Exercise"
       menu:
       - text: "Take-home Exercise 1"
