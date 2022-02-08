@@ -30,9 +30,25 @@ for(p in packages){
 critiques <- read_xlsx("Data/Critiques.xlsx",
                       sheet = "Sheet1")
 ```
-### Critiques:  
+### 1. Critiques:  
 Create table for critiques:
 
 ```{r}
 knitr::kable(critiques,align="lll")
 ```
+
+### 2. Alternative Design
+
+The proposed design is as follows.
+
+![](images/draft1.png)
+
+### 3.Proposed Visualisation
+
+Please view the interactive visualisation on [here]()
+
+### 4.Step-by-step Guide
+
+Before getting started:
+Once open the excel file, we can find two tables. Upon observation, the initial chart is using table 2 with five years interval, instead of ten, which provide a more detailed overview regarding LFPR. 
+
