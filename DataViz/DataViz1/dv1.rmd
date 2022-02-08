@@ -14,7 +14,25 @@ output: distill::distill_article
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE)
 ```
-<edit later>
 
+```{r}
+packages = c('tidyverse', 'readxl', 'knitr')
 
+for(p in packages){
+  if(!require(p, character.only = T)){
+    install.packages(p)
+  }
+  library(p, character.only = T)
+}
+```
 
+```{r}
+critiques <- read_xlsx("Data/Critiques.xlsx",
+                      sheet = "Sheet1")
+```
+### Critiques:  
+Create table for critiques:
+
+```{r}
+knitr::kable(critiques,align="lll")
+```

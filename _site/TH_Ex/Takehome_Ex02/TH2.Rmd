@@ -16,9 +16,10 @@ knitr::opts_chunk$set(echo = FALSE)
 ```
 
 ### Install Packages
-The packages required are `tidyverse` (included relevant packages for data analyses such as ggplot2, readr and dplyr),`ggiraph`,`plotly`,`DT`,`patchwork`,`gganimate`,`readxl`,`gifski`,`gapminder`,`knitr`,`flexdashboard`,`kableExtra`
+The packages required are `tidyverse` (included relevant packages for data analyses such as ggplot2, readr and dplyr),`ggiraph`,`plotly`,`DT`,`patchwork`,`gganimate`,`readxl`,`gifski`,`gapminder`,`knitr`,`flexdashboard`,`kableExtra`  
 
 The code chunk below is used to install and load the required packages onto RStudio.
+
 ```{r echo= TRUE}
 packages = c('ggiraph','plotly','DT','patchwork','gganimate','tidyverse','readxl','gifski','gapminder','knitr','flexdashboard')
 for (p in packages){
@@ -29,16 +30,19 @@ library(p,character.only =T)
 }
 ```
 
-# **Take-home exercise 2**
-Design an age-sex pyramid based data visualization to show the changes of demographic structure of Singapore by age cohort and gender between 2000-2020 at planning area level.
+# **Take-home exercise 2**  
+Design an age-sex pyramid based data visualization to show the changes of demographic structure of Singapore by age cohort and gender between 2000-2020 at planning area level.  
 ###Import data:
+
 ```{r echo=TRUE}
 pop2010 <- read.csv("data/respopagesextod2000to2010.csv",head = T)
 pop2020 <- read.csv("data/respopagesextod2011to2020.csv",head = T)
 head(pop2010)
 head(pop2020)
 ```
+
 Join two sheets together using `rbind()` in Base R:
+
 ```{r echo=TRUE}
 pop_data <- rbind(pop2010, pop2020)
 ```
@@ -77,11 +81,15 @@ age_sex <- age_sex %>%
 
 head(age_sex)
 ```
-Set the bar plots for male populations to the **left side** (thus *negative sign* `-`)  
+
+Set the bar plots for male populations to the **left side** (thus *negative sign* `-`)
+
 ```{r echo = TRUE}
 age_sex$Population <- ifelse(age_sex$Sex == "Males", -1*age_sex$Population, age_sex$Population)
 ```
+
 For further comparison on the PA level, we set the PA filter for **Ang Mo Kio** and **Bedok**. And create two dataframes, AS_AMK and AS_Bd
+
 ```{r echo=TRUE}
 AS_AMK<-age_sex %>%
   filter(., PA == 'Ang Mo Kio')
@@ -102,7 +110,8 @@ Male population values were made negative. This allows a “mirror image” of t
 *Inserting geom_bar() for “Males” and “Females” respectively;<br>
 *Setting continuous y-axis scale using scale_y_continuous(). We have also customised a function for the “label” parameter to transform the negative Female population values back to positive, and to add a thousand mark for the ease of reading;<br>
 *Flipping ordinates using coord_flip(); and<br>
-*Inserting data labels, data source and legends, as shown in the following code chunks:
+*Inserting data labels, data source and legends, as shown in the following code chunks:  
+
 ```{r echo = TRUE}
 female_AMK <- AS_AMK %>%
   filter(.,Sex == 'Females')
@@ -116,6 +125,7 @@ male_Bd <-AS_Bd %>%
 ```
 
 ###Plotting
+
 ```{r echo = TRUE}
 AS_AMK_p<- ggplot(AS_AMK, aes(x = AG, y = Population, fill = Sex)) + 
   geom_bar(data = female_AMK, stat = "identity") +
@@ -136,7 +146,9 @@ xbrks <- seq(-500000, 500000, 100000)
 xlabls <- paste0(as.character(c(seq(500, 0, -100), seq(100, 500, 100))), "k")
 # creating new intervals and labels for x-axis
 ```
-####Finalize the data for Ang Mo Kio
+
+Finalize the data for Ang Mo Kio
+
 ```{r echo = TRUE}
 AS_AMK_p<- ggplot(AS_AMK, aes(x = AG, y = Population, fill = Sex)) + 
   geom_bar(data=female_AMK,stat = "identity") +
@@ -149,7 +161,9 @@ AS_AMK_p<- ggplot(AS_AMK, aes(x = AG, y = Population, fill = Sex)) +
 
 AS_AMK_p
 ```
-####Apply the similar code chunk for Bedok
+
+Apply the similar code chunk for Bedok
+
 ```{r echo = TRUE}
 AS_Bd_p<- ggplot(AS_Bd, aes(x = AG, y = Population, fill = Sex)) + 
   geom_bar(data=female_Bd,stat = "identity") +
@@ -188,6 +202,7 @@ AS_AMK_ani<-ggplot(AS_AMK, aes(x = AG, y = Population, fill = Sex)) +
 ```
 
 Then plot for Bedok area:<br>
+
 ```{r echo=TRUE}
 AS_Bd_ani<-ggplot(AS_Bd, aes(x = AG, y = Population, fill = Sex)) + 
   geom_bar(data=female_Bd,stat = "identity") +
