@@ -75,13 +75,13 @@ Once open the excel file, we can find two tables. Upon observation, the initial 
   
 
 **No.**|**Move**|**Action**|
---- |--- |--- |
+-|-|--- |
 1|Import the cleaned dataset into Tableau.| |
 2|Create the a union by clicking on 'New Union' tab and drag the three tables in into the box.|![](images/07.png)|
 3|Adjust the name of the header, change the datatype accordingly. Edit the name of 'measure name' into LFPR|![](images/09.png)|
 4|Convert the LFPR into percentage(divided by 100) by adding a calculated field|![](images/10.png)|
-5|Add Age (Years) and YEAR to the Column tab and LFPR% to the Rows tab.|![](images/12.png)|
-```6|xxx|![](images/06.png)|
-7|xxx|![](images/07.png)|
-8|xxx|![](images/08.png)|
-9|xxx|![](images/09.png)|```
+5|Add Age (Years) and YEAR to the Column tab and LFPR% to the Rows tab. Change the default Measure (Sum) into Measure (Average).Make it the average for the 3 categories of genders (T, F, M)|![](images/12.png)|
+6|Add Category column to detail,Assign category(T,M,F) with different colors.|![](images/13.png)|
+_|Take a closer look, for other age groups, the fluctuation of three categories are minor, the year-on-year trend is relatively stable, either grow or decline. Except for age group 20-24 and 25-29. We could make a seperate graph later for further investigation.|![](images/14.png)|
+7|Add year & age filters, select dropdown list. Check out the year from 2011 to 2020. Keep only the 2010 and 2021 for display. |![](images/15.png)|
+8|Exclude the 70& Over, keep the intervals evenly distributed.|![](images/16.png)|
