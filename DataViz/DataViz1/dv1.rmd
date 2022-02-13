@@ -73,7 +73,7 @@ Once open the excel file, we can find two tables. Upon observation, the initial 
    * Repeat the steps for the Female and Total as well.
    * Merge the three files into one workbook using MS Excel. Add a column "Category" to differentiate the data source.
   
-
+#### 4.2 Plot the chart using Tableau
 **No.**|**Move**|**Action**|
 -|-|--- |
 1|Import the cleaned dataset into Tableau.| |
@@ -82,7 +82,6 @@ Once open the excel file, we can find two tables. Upon observation, the initial 
 4|Convert the LFPR into percentage(divided by 100) by adding a calculated field|![](images/10.png)|
 5|Add Age (Years) and YEAR to the Column tab and LFPR% to the Rows tab. Change the default Measure (Sum) into Measure (Average).Make it the average for the 3 categories of genders (T, F, M)|![](images/12.png)|
 6|Add Category column to detail,Assign category(T,M,F) with different colors.|![](images/13.png)|
-_|Take a closer look, for other age groups, the fluctuation of three categories are minor, the year-on-year trend is relatively stable, either grow or decline. Except for age group 20-24 and 25-29. We could make a separate graph later for further investigation.|![](images/14.png)|
 7|Select the drop-down menu in the filter tab and select ‘Show Filter’ to display the filter sidebar.|![](images/20.png)|
 8|Add year filters, select drop-down list.|![](images/20.png)| 
 9|Check out the year from 2011 to 2020. Keep only the 2010 and 2021 for display. |![](images/15.png)|
@@ -94,7 +93,7 @@ _|Take a closer look, for other age groups, the fluctuation of three categories 
 13|Deselect show header to hide header.|![](images/27.png)|
 14|Change panel from Line to Circle to show marks in the main graph.|![](images/25.png)|
 15|Adjust the size of the circle by click on the Size button.|![](images/26.png)|
-16|Duplicate AVG (LFPR %) in the Rows tab, click on the down arrow, and create a Quick Table Calculation for Percentage Difference.(This row should be deleted later)|![](images/28.png)|
+16|Duplicate AVG (LFPR %) in the Rows tab, click on the down arrow, and create a Quick Table Calculation for Difference.(This row should be deleted later)|![](images/28.png)|
 17|Click on the drop-down list, select computing using and ensure that the Pane (across) option is selected.|![](images/29.png)|
 18|Double click the variable in the Row tab and copy the formula.|![](images/30.png)|
 19|Right Click the blank space in the left hand side and select create a calculated field and change the name to Difference. Repeat the process to create two other variables for the Increase and Decrease respectively.|![](images/31.png)|
@@ -103,11 +102,28 @@ _|Take a closer look, for other age groups, the fluctuation of three categories 
 21|Right click on the main graph area and select annotate. Type in insights and observations in the text area. Arrange, resize, or format the resulting text box if required.|![](images/36.png)|
 22|Edit Tooltip to delete the "% Difference in Avg. LFPR% from the Previous along Table (Across):"|![](images/37.png)|
 23|Change the the format of LFPR% to xx% by select from dropdown list.|![](images/38.png)|
+24|Ensure the Marks to Label checks most recent.|![](images/39.png)|
+25|Change the data format from Decrease and Increase fields to percentile. Save to 2 decimals.|![](images/40.png)| 
+
+#### 4.3 The finalized Tableau chart.
+Here is the link to the [Tableau chart](https://public.tableau.com/app/profile/yiou3293/viz/DataViz1_Yiou/DataViz1?publish=yes).
 
 
+### 5.Observations
 
+#### 5.1
 
+In general, compare to 2010, people are more engaged in the labor market in 2021. This trend can be observed across all age-groups above 15 years old.
 
+#### 5.2
+
+When breaking down the number into female and male group, we can observe a interesting trend. Although LFPR in Male has higher absolute number, Female LFPR has more advantage in growing. During the 12 years the Female LFPR increased by 7.7%, reaching 64% in 2021, whereas Male LFPR only made a minor 0.7% growth across all ages.This change suggest more women in Singapore are joining the labor force and enjoy a more [financially independent lifestyle.](https://stats.mom.gov.sg/Pages/a-gender-inclusive-workforce.aspx#:~:text=The%20rise%20in%20LFPR%20among,2018%20to%2061.2%25%20in%202020)
+
+#### 5.3
+Another interesting finding is observed from age perspective. For people over 60 years old, the growth rate of LFPR in 10% on average by estimation, especially for the age group 65 to 70, where the 1/5 of the increase is achieved during the past 12 years. With the aging population and longer life expetancy, people could enjoy a healthy and active life even after 65. Another reason behind the growth of LFPR in senior group is the declining birth-rates and slower population growth, which also caused [shifts in the natures of labour force and supply.](https://stats.mom.gov.sg/Pages/Growing_Alongside_Our_Ageing_Workforce.aspx)
+
+#### 5.4
+It's worth mention that during COVID-19 pandemic, the labor market in Singapore is relatively resilient. Though some age-group suffer from a drastic drop between 2019-2020 period, yet it still made to recover in 2021. For instance in age group 20-24, the LFPR took a deep dive from 61% in 2019 to 56% in 2020, making a decrease of 5%. However, it quickly recovers and grew back to 62% in 2021.
 
 
 
