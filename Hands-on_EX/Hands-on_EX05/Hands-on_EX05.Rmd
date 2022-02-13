@@ -1,0 +1,74 @@
+---
+title: "Untitled"
+description: |
+  A new article created using the Distill format.
+author:
+  - name: Nora Jones 
+    url: https://example.com/norajones
+    affiliation: Spacely Sprockets
+    affiliation_url: https://example.com/spacelysprokets
+date: "`r Sys.Date()`"
+output: distill::distill_article
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+```{r}
+packages = c('tidyverse', 'corrplot', 'ggstatsplot','ggcorrplot')
+
+for(p in packages){
+  if(!require(p, character.only = T)){
+    install.packages(p)
+  }
+  library(p, character.only = T)
+}
+```
+ First let us import the data into R by using *read_csv()*
+```{r echo=T,  message=F}
+wine<- read_csv("data/wine_quality.csv")
+```
+
+```{r, echo=F, eval=T,fig.width=7,fig.height=7}
+pairs(wine[,1:11], upper.panel = NULL)
+```
+```{r echo=T, fig.width=7,fig.height=7}
+ggstatsplot::ggcorrmat(
+  data = wine, 
+  cor.vars = 1:11,
+  ggcorrplot.args = list(outline.color = "black", 
+                         hc.order = TRUE,
+                         tl.cex = 10),
+  title    = "Correlogram for wine dataset",
+  subtitle = "Four pairs are no significant at p < 0.05"
+)
+```
+```{r echo=T,eval =F fig.width=7,fig.height=7}
+grouped_ggcorrmat(
+  data = wine,
+  cor.vars = 1:11,
+  grouping.var = type,
+  type = "robust",
+  p.adjust.method = "holm",
+  plotgrid.args = list(outline.color = "black",
+                       hc.order = T,
+                       tl.cex = 10),
+  annotation.args = list(
+    tag_levels = "a",
+    title = "Correlogram for wine dataset",
+    subtitle = "The measure are: alcohol, sulphates, fixed acidity, citric acid,chlorides, residua",
+    caption = "Dataset: UCI Machine Learning Repository")
+)
+```
+
+```{r echo=T,eval = T, fig.width=7,fig.height=7}
+wine.cor <-cor(wine[,1:11])
+corrplot(wine.cor)
+
+corrplot.mixed(wine.cor, 
+               lower = "ellipse", 
+               upper = "number",
+               tl.pos = "lt",
+               diag = "l",
+               tl.col = "black")
+```

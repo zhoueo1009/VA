@@ -1,0 +1,68 @@
+---
+title: "Untitled"
+description: |
+  A new article created using the Distill format.
+author:
+  - name: Nora Jones 
+    url: https://example.com/norajones
+    affiliation: Spacely Sprockets
+    affiliation_url: https://example.com/spacelysprokets
+date: "`r Sys.Date()`"
+output: distill::distill_article
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+```{r echo=T}
+packages = c('seriation', 'dendextend', 'heatmaply', 'tidyverse')
+
+for(p in packages){library
+  if(!require(p, character.only = T)){
+    install.packages(p)
+  }
+  library(p, character.only = T)
+}
+
+#import data
+wh<- read_csv("data/WHData-2018.csv")
+
+row.names(wh)<- wh$Country
+```
+
+```{r echo=T}
+wh1<-dplyr::select(wh, c(3,7:12))
+wh_matrix<-data.matrix(wh)
+
+```
+
+```{r echo=T}
+packages = c('GGally','parcoords', 'parallelPlot', 'tidyverse')
+
+for (p in packages){
+  if(!require(p, character.only = T)){
+    install.packages(p)
+  }
+  library(p,character.only = T)
+}
+```
+```{r echo=T}
+wh <- read_csv("data/WHData-2018.csv")
+```
+
+```{r echo=T}
+ggparcoord(data = wh,
+           columns = c(7:12)
+           )
+```
+
+
+```{r echo=T}
+ggparcoord(data = wh,
+           columns = c(7:12),
+           groupColumn = 2,
+           scale = "unniminmax",
+           alphaLines = 0.2,
+           boxplot = TRUE,
+           title = "Parallel Coordinates Plot with R.")
