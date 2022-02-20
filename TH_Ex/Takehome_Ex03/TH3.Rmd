@@ -62,29 +62,38 @@ store <- left_join(returns, orders,
                         by = c('Order ID' = 'Order ID'))%>%
 mutate_if(is.character,as.factor)
 glimpse(store)
-```
-
-Count the number of order by state.
-
-```{r}
-so <- store %>%
-  count(store$State)
+levels(store$Returned)
 ```
 
 Count the number of return by state.
 
-```{r}
+```{r echo=T}
 sr <- store %>%
   group_by(State)%>%
   summarise('Returned'=n())%>%
   ungroup()
 sr
 ```
+count the number of orders by the state.
 
+```{r}
+so <- orders %>%
+  group_by(State)%>%
+  summarise('Order ID'=n())%>%
+  ungroup()
+so
+```
+
+join two dataframe
+
+```{r}
+ss <- left_join(so,sr,
+                by = c('State' = 'State'))%>%
+  mutate_if()
+ss
+```
 
 ##  4.0 FunnelPlotR methods
-
-order returned by state.(return rate by state?)
 
 FunnelPlotR package uses ggplot to generate funnel plots. It requires a numerator (events of interest), denominator (population to be considered) and group. The key arguments selected for customisation are:
 
@@ -94,3 +103,55 @@ FunnelPlotR package uses ggplot to generate funnel plots. It requires a numerato
 + OD_adjust: to add overdispersed limits to the plot.
 + xrange and yrange: to specify the range to display for axes, acts like a zoom function.
 + Other aesthetic components such as graph title, axis labels etc.
+
+### 4.1 FunnelPlotR methods: The basic plot
+
+The code chunk below plots a funnel plot.
+
+```{r echo=T}
+fp<-funnel_plot(
+  numerator = ss$Returned,
+  denominator = ss$`Order ID`,
+  group = ss$State
+)
+fp
+```
+
+### 4.2 FunnelPlotR methods: Makeover 1
+```{r}
+fp1<- funnel_plot(
+  numerator = ss$Returned,
+  denominator = ss$`Order ID`,
+  group = ss$State,
+  data_type = "SR",     
+  xrange = c(0, 2500),  
+  yrange = c(-0.1, 1.2)   
+)
+fp1
+```
+### 4.3 FunnelPlotR methods: Makeover 2
+The code chunk below plots a funnel plot.
+
+```{r}
+fp2<- funnel_plot(
+  numerator = ss$Returned,
+  denominator = ss$`Order ID`,
+  group = ss$State,
+  data_type = "SR",     
+  xrange = c(0, 2500),  
+  yrange = c(0, 1.1),  
+  label = NA,
+  title = "Number of returned orders by total number of orders",      
+  x_label = "Totoal number of orders",
+  y_label = "Return rate" 
+)
+fp2
+```
+
+
+
+
+
+
+
+
