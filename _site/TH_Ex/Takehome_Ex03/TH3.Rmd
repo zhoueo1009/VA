@@ -1,0 +1,96 @@
+---
+title: "Take-home Exercise 3"
+description: |
+  Putting Visual Analytics into Practical Use
+author:
+  - name: Zhou Yiou 
+    url: https://example.com/zhouyiou
+    affiliation: MITB SMU
+    affiliation_url: https://example.com/spacelysprokets
+date: "`r Sys.Date()`"
+output: distill::distill_article
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+##  1.0 About the task
+
+This [take-home exercise](https://isss608-ay2021-22t2.netlify.app/th_ex/th_ex03) requires to apply appropriate data visualization techniques learned in Lesson 4 to accomplish the following task:  
+
+Create a data visualisation to provide an unbiased comparison of order returned by state. 
+
+For this task, Superstore-2021.xls should be used and the chart applied here are from [Hands-On Exercise 4: Building Funnel Plot with R](https://isss608-ay2021-22t2.netlify.app/hands-on_ex/hands-on_ex04/hands-on_ex04-funnelplot)
+
+##  2.0 Installing and loading the required libraries
+
+In this exercise, tidyverse, FunnelPlotR, plotly and Knitr will be used.
+
+  + readr for importing csv into R.
+  + FunnelPlotR for creating funnel plot.
+  + ggplot2 for creating funnel plot manually.
+  + knitr for building static html table.
+  + plotly for creating interactive funnel plot.
+
+```{r echo=T}
+packages = c('tidyverse', 'FunnelPlotR', 'plotly','dplyr',
+             'knitr','readxl')
+for(p in packages){
+  if(!require(p,character.only = T)){
+    install.packages(p)
+  }
+  library(p,character.only = T)
+}
+```
+
+##  3.0 data wrangling
+
+Importing data
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+orders <- read_xls("data/Superstore-2021.xls",
+                  sheet = "Orders")
+returns <- read_xls("data/Superstore-2021.xls",
+                  sheet = "Returns")
+```
+
+Join orders table and returns table
+
+```{r echo=T}
+store <- left_join(returns, orders,
+                        by = c('Order ID' = 'Order ID'))%>%
+mutate_if(is.character,as.factor)
+glimpse(store)
+```
+
+Count the number of order by state.
+
+```{r}
+so <- store %>%
+  count(store$State)
+```
+
+Count the number of return by state.
+
+```{r}
+sr <- store %>%
+  group_by(State)%>%
+  summarise('Returned'=n())%>%
+  ungroup()
+sr
+```
+
+
+##  4.0 FunnelPlotR methods
+
+order returned by state.(return rate by state?)
+
+FunnelPlotR package uses ggplot to generate funnel plots. It requires a numerator (events of interest), denominator (population to be considered) and group. The key arguments selected for customisation are:
+
++ limit: plot limits (95 or 99).
++ label_outliers: to label outliers (true or false).
++ Poisson_limits: to add Poisson limits to the plot.
++ OD_adjust: to add overdispersed limits to the plot.
++ xrange and yrange: to specify the range to display for axes, acts like a zoom function.
++ Other aesthetic components such as graph title, axis labels etc.

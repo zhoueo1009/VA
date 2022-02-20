@@ -1,0 +1,83 @@
+---
+title: "Untitled"
+description: |
+  A new article created using the Distill format.
+author:
+  - name: Nora Jones 
+    url: https://example.com/norajones
+    affiliation: Spacely Sprockets
+    affiliation_url: https://example.com/spacelysprokets
+date: "`r Sys.Date()`"
+output: distill::distill_article
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+```{r}
+packages = c('scales', 'viridis', 
+             'lubridate', 'ggthemes', 
+             'gridExtra', 'tidyverse', 
+             'readxl', 'knitr',
+             'data.table')
+```
+
+```{r}
+air <- read_excel("data/arrivals_by_air.xlsx")
+```
+
+```{r}
+#month, years function come from lubridate
+air$month <- factor(month(air$`Month-Year`), 
+                    levels=1:12, 
+                    labels=month.abb, 
+                    ordered=TRUE)
+air$year<- year(ymd(air$`Month-Year`))
+#ymd indicate that the data structure is organized according to the order year/month/day
+```
+
+
+```{r}
+New_Zealand <- air %>% 
+  select(`New Zealand`, 
+         month, 
+         year) %>%
+  filter(year >= 2010)
+
+```
+```{r}
+#calculate the reference line.
+hline.data <- New_Zealand %>% 
+  group_by(month) %>%
+  summarise(avgvalue = mean(`New Zealand`))%>%
+  ungroup()
+```
+```{r}
+# 2 datasets, one new-zealand, one aggregated one.
+ggplot() + 
+  geom_line(data=New_Zealand,
+            aes(x=year, 
+                y=`New Zealand`, 
+                group=month), 
+            colour="black") +
+  geom_hline(aes(yintercept=avgvalue), 
+             data=hline.data, 
+             linetype=6, 
+             colour="red", 
+             size=0.5) + 
+  facet_grid(~month) +
+  labs(axis.text.x = element_blank()) +
+  xlab("") +
+  ylab("No. of Visitors")
+#tidy up the label of x-axis, position: up-down 
+```
+
+
+
+
+
+
+
+
+

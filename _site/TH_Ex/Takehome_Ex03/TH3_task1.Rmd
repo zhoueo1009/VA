@@ -1,0 +1,116 @@
+---
+title: "Take-home Exercise 3"
+description: |
+  Putting Visual Analytics into Practical Use
+author:
+  - name: Zhou Yiou 
+    url: https://example.com/zhouyiou
+    affiliation: MITB SMU
+    affiliation_url: https://example.com/spacelysprokets
+date: "`r Sys.Date()`"
+output: distill::distill_article
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+##1.0 About the task
+This [take-home exercise](https://isss608-ay2021-22t2.netlify.app/th_ex/th_ex03) requires to apply appropriate data visualization techniques learned in Lesson 3 or Lesson 4 to accomplish the following task:  
+Create a data visualization showing average rating and proportion of cocoa percent (% chocolate) greater than or equal to 70% by top 15 company locations. 
+
+For this task, chocolate.csv should be used and the chart applied here are from [Lesson 4: Fundamental of Visual Analytics]()
+
+##2.0 Sketch of Proposed Design
+
+In the code chunk below, ggbetweenstats() is used to build a visual for One-way ANOVA test on English score by race.<slide 9>
+
+##3.0 Installing and loading the required libraries
+In this exercise, infer, ggstatsplot and tidyverse will be used.
+
+```{r echo=T}
+packages = c('ggstatsplot', 'ggside', 'knitr',
+             'tidyverse', 'broom', 'ggdist','dplyr')
+for(p in packages){
+  if(!require(p,character.only = T)){
+    install.packages(p)
+  }
+  library(p,character.only = T)
+}
+```
+##4.0 data wrangling
+
+importing data
+
+```{r echo=T}
+chocolate <- read_csv("data/chocolate.csv")%>%
+  mutate_if(is.character,as.factor)
+glimpse(chocolate)
+```
+Remove the % sign and convert *cocoa_percent* into numeric for further calculation.
+```{r echo=T}
+sub('%','',chocolate$cocoa_percent)%>%
+  as.numeric(chocolate$cocoa_percent)
+```
+
+top 15 location
+```
+top15->chocolate$company_location%>%
+  group_by(`company_location`)%>%
+  summarise(freqloc = n())%>%
+  arrange(desc(freqloc))%>%
+  top_n(15,freqloc)
+top15
+```
+
+##Visualizing the uncertainty of point estimates: ggplot2 methods
+The code chunk below computes the count of observations, mean, standard deviation and standard error of rating.
+Top 15 company location
+```{r}
+avg_rating <- chocolate %>%
+  group_by(company_location) %>%
+  summarise(
+    n=n(),
+    mean=mean(rating),
+    sd=sd(rating)
+    ) %>%
+  mutate(se=sd/sqrt(n-1))
+avg_rating
+```
+
+The code chunk below is used to reveal the standard error of mean rating by company_location .
+
+```{r}
+ggplot(avg_rating) +
+  geom_errorbar(
+    aes(x=company_location, 
+        ymin=mean-se, 
+        ymax=mean+se), 
+    width=0.2, 
+    colour="black", 
+    alpha=0.9, 
+    size=0.5) +
+  geom_point(aes
+           (x=company_location, 
+            y=mean), 
+           stat="identity", 
+           color="red",
+           size = 1.5,
+           alpha=1) +
+  ggtitle("Standard error of mean rating by company_location")
+```
+
+## Dual-y axis to plot proportion of cocoa_percent>=70%
+
+```
+Step 1:
+Sort the top 15 company location by number
+Step 2:
+Y axis for average rating
+Step 3:
+dual-Y axix for proportion of cocoa%>=70%  
+```
+
+
+
+
