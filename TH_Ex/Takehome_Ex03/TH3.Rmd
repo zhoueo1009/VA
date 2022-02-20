@@ -88,10 +88,19 @@ join two dataframe
 
 ```{r}
 ss <- left_join(so,sr,
-                by = c('State' = 'State'))%>%
-  mutate_if()
+                by = c('State' = 'State')
+                )
 ss
 ```
+
+Replace NA value in Returned column.
+```{r echo=T}
+ss$Returned %>%
+  replace_na(0)
+ss
+```
+
+
 
 ##  4.0 FunnelPlotR methods
 
@@ -118,7 +127,7 @@ fp
 ```
 
 ### 4.2 FunnelPlotR methods: Makeover 1
-```{r}
+```{r echo=T}
 fp1<- funnel_plot(
   numerator = ss$Returned,
   denominator = ss$`Order ID`,
@@ -132,7 +141,7 @@ fp1
 ### 4.3 FunnelPlotR methods: Makeover 2
 The code chunk below plots a funnel plot.
 
-```{r}
+```{r echo=T}
 fp2<- funnel_plot(
   numerator = ss$Returned,
   denominator = ss$`Order ID`,
@@ -148,7 +157,7 @@ fp2<- funnel_plot(
 fp2
 ```
 
-
+Though the initial intention was to plot a FunnelPlot, however, the calculated data was not ideal for a FunnelPlot. An alternative would be scatterplot.
 
 
 
