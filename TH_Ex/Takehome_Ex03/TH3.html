@@ -93,8 +93,8 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
 
 
   <!--  https://schema.org/Article -->
-  <meta property="article:published" itemprop="datePublished" content="2022-02-20" />
-  <meta property="article:created" itemprop="dateCreated" content="2022-02-20" />
+  <meta property="article:published" itemprop="datePublished" content="2022-02-25" />
+  <meta property="article:created" itemprop="dateCreated" content="2022-02-25" />
   <meta name="article:author" content="Zhou Yiou" />
 
   <!--  https://developers.facebook.com/docs/sharing/webmasters#markup -->
@@ -112,7 +112,7 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
   <!--radix_placeholder_rmarkdown_metadata-->
 
   <script type="text/json" id="radix-rmarkdown-metadata">
-  {"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["title","description","author","date","output"]}},"value":[{"type":"character","attributes":{},"value":["Take-home Exercise 3"]},{"type":"character","attributes":{},"value":["Putting Visual Analytics into Practical Use\n"]},{"type":"list","attributes":{},"value":[{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","url","affiliation","affiliation_url"]}},"value":[{"type":"character","attributes":{},"value":["Zhou Yiou"]},{"type":"character","attributes":{},"value":["https://example.com/zhouyiou"]},{"type":"character","attributes":{},"value":["MITB SMU"]},{"type":"character","attributes":{},"value":["https://example.com/spacelysprokets"]}]}]},{"type":"character","attributes":{},"value":["2022-02-20"]},{"type":"character","attributes":{},"value":["distill::distill_article"]}]}
+  {"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["title","description","author","date","output"]}},"value":[{"type":"character","attributes":{},"value":["Take-home Exercise 3"]},{"type":"character","attributes":{},"value":["Putting Visual Analytics into Practical Use\n"]},{"type":"list","attributes":{},"value":[{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","url","affiliation","affiliation_url"]}},"value":[{"type":"character","attributes":{},"value":["Zhou Yiou"]},{"type":"character","attributes":{},"value":["https://example.com/zhouyiou"]},{"type":"character","attributes":{},"value":["MITB SMU"]},{"type":"character","attributes":{},"value":["https://example.com/spacelysprokets"]}]}]},{"type":"character","attributes":{},"value":["2022-02-25"]},{"type":"character","attributes":{},"value":["distill::distill_article"]}]}
   </script>
   <!--/radix_placeholder_rmarkdown_metadata-->
   
@@ -1459,7 +1459,7 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
 <!--radix_placeholder_front_matter-->
 
 <script id="distill-front-matter" type="text/json">
-{"title":"Take-home Exercise 3","description":"Putting Visual Analytics into Practical Use","authors":[{"author":"Zhou Yiou","authorURL":"https://example.com/zhouyiou","affiliation":"MITB SMU","affiliationURL":"https://example.com/spacelysprokets","orcidID":""}],"publishedDate":"2022-02-20T00:00:00.000+08:00","citationText":"Yiou, 2022"}
+{"title":"Take-home Exercise 3","description":"Putting Visual Analytics into Practical Use","authors":[{"author":"Zhou Yiou","authorURL":"https://example.com/zhouyiou","affiliation":"MITB SMU","affiliationURL":"https://example.com/spacelysprokets","orcidID":""}],"publishedDate":"2022-02-25T00:00:00.000+08:00","citationText":"Yiou, 2022"}
 </script>
 
 <!--/radix_placeholder_front_matter-->
@@ -1478,7 +1478,7 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
 <div class="d-byline">
   Zhou Yiou <a href="https://example.com/zhouyiou" class="uri">https://example.com/zhouyiou</a> (MITB SMU)<a href="https://example.com/spacelysprokets" class="uri">https://example.com/spacelysprokets</a>
   
-<br />2022-02-20
+<br />2022-02-25
 </div>
 
 <div class="d-article">
@@ -1583,8 +1583,16 @@ $ Profit           &lt;dbl&gt; 45.5760, 96.3438, 69.1776, 7.9800, 45.5760,~</cod
 10 Indiana           3
 # ... with 26 more rows</code></pre>
 </div>
-<p>count the number of orders by the state.</p>
+<p>Count the number of orders by the state.</p>
 <div class="layout-chunk" data-layout="l-body">
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class="va">so</span> <span class="op">&lt;-</span> <span class="va">orders</span> <span class="op">%&gt;%</span>
+  <span class="fu">group_by</span><span class="op">(</span><span class="va">State</span><span class="op">)</span><span class="op">%&gt;%</span>
+  <span class="fu">summarise</span><span class="op">(</span><span class="st">&#39;Order ID&#39;</span><span class="op">=</span><span class="fu">n</span><span class="op">(</span><span class="op">)</span><span class="op">)</span><span class="op">%&gt;%</span>
+  <span class="fu">ungroup</span><span class="op">(</span><span class="op">)</span>
+<span class="va">so</span>
+</code></pre>
+</div>
 <pre><code># A tibble: 49 x 2
    State                `Order ID`
    &lt;chr&gt;                     &lt;int&gt;
@@ -1600,8 +1608,15 @@ $ Profit           &lt;dbl&gt; 45.5760, 96.3438, 69.1776, 7.9800, 45.5760,~</cod
 10 Georgia                     184
 # ... with 39 more rows</code></pre>
 </div>
-<p>join two dataframe</p>
+<p>Join two dataframe</p>
 <div class="layout-chunk" data-layout="l-body">
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class="va">ss</span> <span class="op">&lt;-</span> <span class="fu">left_join</span><span class="op">(</span><span class="va">so</span>,<span class="va">sr</span>,
+                by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">&#39;State&#39;</span> <span class="op">=</span> <span class="st">&#39;State&#39;</span><span class="op">)</span>
+                <span class="op">)</span>
+<span class="va">ss</span>
+</code></pre>
+</div>
 <pre><code># A tibble: 49 x 3
    State                `Order ID` Returned
    &lt;chr&gt;                     &lt;int&gt;    &lt;int&gt;
@@ -1617,7 +1632,7 @@ $ Profit           &lt;dbl&gt; 45.5760, 96.3438, 69.1776, 7.9800, 45.5760,~</cod
 10 Georgia                     184       24
 # ... with 39 more rows</code></pre>
 </div>
-Replace NA value in Returned column.
+<p>Replace NA value in Returned column.</p>
 <div class="layout-chunk" data-layout="l-body">
 <div class="sourceCode">
 <pre class="sourceCode r"><code class="sourceCode r"><span class="va">ss</span><span class="op">$</span><span class="va">Returned</span> <span class="op">%&gt;%</span>

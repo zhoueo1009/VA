@@ -74,9 +74,10 @@ sr <- store %>%
   ungroup()
 sr
 ```
-count the number of orders by the state.
 
-```{r}
+Count the number of orders by the state.
+
+```{r echo=T}
 so <- orders %>%
   group_by(State)%>%
   summarise('Order ID'=n())%>%
@@ -84,9 +85,9 @@ so <- orders %>%
 so
 ```
 
-join two dataframe
+Join two dataframe
 
-```{r}
+```{r echo=T}
 ss <- left_join(so,sr,
                 by = c('State' = 'State')
                 )
@@ -94,13 +95,12 @@ ss
 ```
 
 Replace NA value in Returned column.
+
 ```{r echo=T}
 ss$Returned %>%
   replace_na(0)
 ss
 ```
-
-
 
 ##  4.0 FunnelPlotR methods
 
@@ -127,6 +127,7 @@ fp
 ```
 
 ### 4.2 FunnelPlotR methods: Makeover 1
+
 ```{r echo=T}
 fp1<- funnel_plot(
   numerator = ss$Returned,
@@ -138,7 +139,9 @@ fp1<- funnel_plot(
 )
 fp1
 ```
+
 ### 4.3 FunnelPlotR methods: Makeover 2
+
 The code chunk below plots a funnel plot.
 
 ```{r echo=T}
