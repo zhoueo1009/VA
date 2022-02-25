@@ -1,0 +1,88 @@
+---
+title: "Take-home Exercise 4"
+description: |
+  Putting Visual Analytics into Practical Use
+author:
+  - name: Zhou Yiou 
+    url: https://example.com/zhouyiou
+    affiliation: MITB SMU
+    affiliation_url: https://example.com/spacelysprokets
+date: "`r Sys.Date()`"
+output: distill::distill_article
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+##  1.0 About the task
+
+This [take-home exercise](https://isss608-ay2021-22t2.netlify.app/th_ex/th_ex04) requires to apply appropriate data visualization techniques learned in Lesson 6 to accomplish the following tasks:
+
+1. Script stock prices of top 40 companies in Singapore by market capitalisation between 1st January 2020 - 31st December 2021 by using *tidyquant* R package.
+
+2. Using calender heatmap, prepare a data visualisation showing the historical stock prices by the top 40 companies by market capitalisation.
+
+For calender heatmap, I'm using *ggTimeSeries*, a ggplot2 extension provides additional display mediums for time series visualisations.
+
+##  2.0 Installing and loading the required libraries
+
+In this exercise, tidyquant, tidyverse, ggplot2, dyplyr, and Knitr will be used.
+
+  + `readr` for importing csv into R.
+  + `tidyquant` to return objects in the tidy ‘tibble’ format and use quantitative functions together with the tidyverse functions.
+  + `knitr` for building static html table.
+  + `ggTimeSeries` as additional display mediums for time series visualisations.
+
+
+```{r echo=T}
+packages = c('tidyverse', 'tidyquant', 'ggplot2','dplyr','ggTimeSeries',
+             'knitr')
+for(p in packages){
+  if(!require(p,character.only = T)){
+    install.packages(p)
+  }
+  library(p,character.only = T)
+}
+```
+
+##  3.0 data wrangling
+
+  Script data from [top 40 companies in Singapore by market capitalisation](https://companiesmarketcap.com/singapore/largest-companies-in-singapore-by-market-cap/)
+  
+  reference: [scraping of fiancial dataset](https://giniceseah.netlify.app/posts/2021-06-18-scraping-of-financial-dataset/#tidyquant-package)
+
+### 3.1 Use tidyquant to re-format the dataset into dataframe or tidyverse format. 
+
+`tidyquant` is the latest R package design that provides a convenient wrapper to various ‘xts’, ‘zoo’, ‘quantmod’, ‘TTR’ and ‘PerformanceAnalytics’ package functions. The output will return objects in the tidy ‘tibble’ format that is ideal for time series analysis. One of the strength of the tidyquant R package is that it is able to use *quantitative functions* together with the tidyverse functions.
+
+With `tq_transmute_fun_options()`, we will be able to return a list of available functions within the `tidyquant` R packages for ‘xts’, ‘zoo’, ‘quantmod’, ‘TTR’ and ‘PerformanceAnalytics’ package functions.
+
+  + indicate the start and end date for the time period required for the analysis using `tidyquant`. 
+  + specify the start and end dates for the required period of the time series analysis. 
+  + indicate the periodicity (days, weeks, months, years) .
+
+We use the following code to manipulate and select the individual stock symbol that they wish to query with the specific time period and data frequency from Yahoo Finance and this is mainly using the tq_get() function within the tidyquant R packages. tq_get() is able to retrieve date, volume, opening, highest, lowest, closing, and adjusted price.
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+from_date = "2020-01-01"
+to_date = "2021-12-31"
+period_type = "days"  # "days"/ "weeks"/ "months"/ "years"
+stock_selected = 'AAPL'
+
+stock_data_daily = tq_get(stock_selected,
+               get = "stock.prices",
+               from = from_date,
+               to = to_date) %>%
+  tq_transmute(select     = NULL, 
+               mutate_fun = to.period, 
+               period  = period_type)
+
+library(rmarkdown)
+paged_table(stock_data_daily)
+```
+
+
+
+
+
