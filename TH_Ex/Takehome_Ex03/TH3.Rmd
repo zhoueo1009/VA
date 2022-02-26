@@ -163,6 +163,8 @@ fp2
 Though the initial intention was to plot a FunnelPlot, however, the calculated data was not ideal for a FunnelPlot. An alternative would be scatterplot.
 
 
+Amendment done credit to [annie](https://anniecwl.netlify.app/takehomeex3/takehome-ex3) 
+
 
 
 

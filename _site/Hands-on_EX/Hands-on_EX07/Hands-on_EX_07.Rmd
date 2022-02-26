@@ -1,0 +1,171 @@
+---
+title: "Hands-on EX-07"
+description: |
+  A new article created using the Distill format.
+author:
+  - name: Nora Jones 
+    url: https://example.com/norajones
+    affiliation: Spacely Sprockets
+    affiliation_url: https://example.com/spacelysprokets
+date: "`r Sys.Date()`"
+output: distill::distill_article
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+e s
+
+```{r echo=T}
+packages = c('sf','tmap','tidyverse')
+for(p in packages){
+  if(!require(p,character.only = T)){
+    install.packages(p)
+  }
+  library(p,character.only = T)
+}
+```
+
+```{r echo=T}
+sgpools<-read_csv('data/aspatial/SGPools_svy21.csv')
+```
+
+```{r echo=T}
+sgpools_sf <- st_as_sf(
+  sgpools, 
+  coords = c("XCOORD",#
+             "YCOORD"),#longitude
+             crs= 3414)
+```
+
+```{r echo=T}
+tmap_mode("view")
+tm_shape(sgpools_sf)+
+tm_bubbles(col = "red",
+           size = 1,
+           border.col = "black",
+           border.lwd = 1)
+```
+
+notes:
+*Base layers:*
+tm_polygons [Create a polygon layer (with borders)]
+tm_symbols [Create a layer of symbols]
+tm_lines [Create a layer of lines]
+tm_raster Create a raster layer
+tm_text Create a layer of text labels
+tm_basemap Create a layer of basemap tiles
+tm_tiles Create a layer of overlay tiles
+*Derived layers:*
+tm_fill Create a polygon layer (without borders)
+tm_borders Create polygon borders
+tm_bubbles Create a layer of bubbles
+tm_squares Create a layer of squares
+tm_dots Create a layer of dots
+tm_markers Create a layer of markers
+tm_iso Create a layer of iso/contour lines
+tm_rgb Create a raster layer of an image
+
+*proportional*
+
+```{r echo=T}
+tm_shape(sgpools_sf)+
+tm_bubbles(col = "red",
+           size = "Gp1Gp2 Winnings",
+           border.col = "black",
+           border.lwd = 0.5)
+```
+
+*Different Color:*
+
+```{r echo=T}
+tm_shape(sgpools_sf)+
+tm_bubbles(col = "OUTLET TYPE",
+          size = "Gp1Gp2 Winnings",
+          border.col = "black",
+          border.lwd = 0.5)
+```
+
+*twin brother(two interactive facet)*
+
+```{r}
+tm_shape(sgpools_sf) +
+  tm_bubbles(col = "OUTLET TYPE", 
+          size = "Gp1Gp2 Winnings",
+          border.col = "black",
+          border.lwd = 1) +
+  tm_facets(by= "OUTLET TYPE",
+            nrow = 1,
+            sync = TRUE)# to sync the movement of both facets
+```
+
+#Part 2:
+
+import geospatial data into R
+
+```{r echo=T}
+mpsz <- st_read(dsn = "data/geospatial", 
+                layer = "MP14_SUBZONE_WEB_PL")
+```
+
+import attribute data into R
+
+```{r echo=T}
+popagsex <- read_csv("data/aspatial/respopagsex2000to2018.csv")
+```
+
+Data Preparation
+
+```{r echo=T}
+popagsex2018_male <- popagsex %>%
+  filter(Sex == "Males") %>%
+  filter(Time == 2018) %>%
+  #SPREAD()DATED!!! NO USE. 
+  #spread(AG, Pop)
+  pivot_wider(AG,Pop)%>% # use pivot_wider()instead
+  mutate(YOUNG = `0_to_4`+`5_to_9`+`10_to_14`+`15_to_19`+`20_to_24`)%>% #alternatively, use:
+mutate(`ECONOMY ACTIVE` = rowSums(.[9:13])+
+         rowSums(.[15:17]))%>%
+  mutate(`AGED`=rowSums(.[18:22])) %>%
+mutate(`TOTAL`=rowSums(.[5:22])) %>%  
+mutate(`DEPENDENCY` = (`YOUNG` + `AGED`)
+/`ECONOMY ACTIVE`) %>%
+mutate_at(.vars = vars(PA, SZ), 
+          .funs = funs(toupper)) %>%
+  select(`PA`, `SZ`, `YOUNG`, 
+         `ECONOMY ACTIVE`, `AGED`, 
+         `TOTAL`, `DEPENDENCY`) %>%
+  filter(`ECONOMY ACTIVE` > 0)
+```
+
+Joining the attribute data and geospatial data
+
+```{r}
+mpsz_agemale2018 <- left_join(mpsz,
+                              popagsex2018_male,
+                              by = c("SUBZONE_N" = "SZ"))
+```
+
+Plotting a choropleth map quickly by using qtm()
+
+```{r}
+tmap_mode("plot")
+qtm(mpsz_agemale2018, 
+    fill = "DEPENDENCY")
+```
+
+any NA in R would be treated/labeled as missing value(which in Tableau not)
+
+Drawing a choropleth map using tm_polygons()
+```{r}
+tm_shape(mpsz_agemale2018)+
+  tm_polygons("DEPENDENCY")
+```
+
+Drawing a choropleth map using tm_fill() and tm_border()
+```{r}
+tm_shape(mpsz_agemale2018)+
+  tm_fill("DEPENDENCY")
+```
+
