@@ -12,7 +12,7 @@ output: distill::distill_article
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(echo = T,fig.dim=c(20,15))
 ```
 
 ##  1.0 About the task
@@ -46,23 +46,26 @@ for(p in packages){
 
 ##  3.0 data wrangling
 
-### 3.1 Script data from [top 40 companies in Singapore by market capitalisation](https://companiesmarketcap.com/singapore/largest-companies-in-singapore-by-market-cap/)
+Script data from [top 40 companies in Singapore by market capitalisation](https://companiesmarketcap.com/singapore/largest-companies-in-singapore-by-market-cap/)
   
-  reference: [scraping of fiancial dataset](https://giniceseah.netlify.app/posts/2021-06-18-scraping-of-financial-dataset/#tidyquant-package)
+Reference: [scraping of fiancial dataset](https://giniceseah.netlify.app/posts/2021-06-18-scraping-of-financial-dataset/#tidyquant-package)
 
-Import the data:
+#### Import the data:
 
 ```{r echo=T}
 Companies<-read.csv('data/companiesmarketcap.csv')
 ```
 
+####Prepare the data:
+
 Only the list of symbols was retained for the subsequent use. `slice_max()` is used to get the top 40 stocks in SGX by *marketcap*.
 
-```{r echo=T}
+```{r}
 top40<-Companies%>%
   slice_max(`marketcap`,n=40)%>%
   select(Symbol,Name)
 ```
+#### Script data from Yahoo Finance:
 
 The following code is used to manipulate and select the stock symbols within 1 January 2020 to 31 December 2021  from Yahoo Finance as required. The data was returned in daily intervals. 
 `tq_get()` function in tidyquant R packages is used to retrieve date, volume, opening, highest, lowest, closing, and adjusted price.
@@ -84,33 +87,10 @@ stock_data_daily<-top40 %>%
 rmarkdown::paged_table(stock_data_daily)
 ```
 
-## 4. Data Visualization
-
-Load the dataset and calculate the cutpoints and origin:
-
-cutpoints <- stock_data_daily  %>% 
-  mutate(
-    outlier = between(
-      close, 
-      quantile(close, 0.25, na.rm=T)-
-        1.5*IQR(close, na.rm=T),
-      quantile(close, 0.75, na.rm=T)+
-        1.5*IQR(close, na.rm=T))) %>% 
-  filter(outlier)
-
-ori <- sum(range(cutpoints$close))/2
-sca <- seq(range(cutpoints$close)[1], 
-           range(cutpoints$close)[2], 
-           length.out = 7)[-4]
-
-round(ori, 2) # The origin
-#> [1] 6.58
-
-round(sca, 2) # The horizon scale cutpoints
-#> [1] -12.11  -5.88   0.35  12.81  19.05  25.28
-
+## 4.0 Data Visualization
 
 Build the horizon plots in ggplot2 using geom_horizon():
+
 ```{r echo=T}
 stock_data_daily %>% ggplot() +
   geom_horizon(aes(date, close))+
@@ -133,11 +113,9 @@ stock_data_daily %>% ggplot() +
           'from 1/1/2020 to 31/12/2021')
 ```
 
-adjust the size of plot, set the x-axis interval to 3 months. 
-consider use par() in base R to resize the plot
+Adjust the size of fond, set the x-axis interval to 3 months. 
 
-
-```{r echo=T}
+```{r}
 stock_data_daily %>% ggplot() +
   geom_horizon(aes(date, close),origin = "median",horizonscale = 6)+
   scale_fill_hcl(palette = 'RdBu', reverse = T) + #set the color palette
@@ -145,11 +123,15 @@ stock_data_daily %>% ggplot() +
   theme_few() +
   theme(
     panel.spacing.y=unit(0, "lines"),
-    strip.text.y = element_text(size = 12, angle = 0, hjust = 0),
+    strip.text.y = element_text(size = 16, angle = 0, hjust = 0),
+    axis.text.x = element_text(size = 20),
     axis.text.y = element_blank(),
     axis.title.y = element_blank(),
     axis.ticks.y = element_blank(),
-    panel.border = element_blank()
+    panel.border = element_blank(), 
+    axis.title=element_text(size=20,face="bold"),
+    plot.title = element_text(size=28, face = "bold"),
+    plot.subtitle = element_text(size=20, face = "bold")
     ) +
   scale_x_date(expand=c(0,0), 
                date_breaks = "3 month", 
