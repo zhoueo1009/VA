@@ -12,7 +12,7 @@ output: distill::distill_article
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = T,fig.dim=c(20,15))
+knitr::opts_chunk$set(echo = T,fig.dim=c(20,15)) #fig.dim is used to resize the graph.
 ```
 
 ##  1.0 About the task
@@ -56,7 +56,7 @@ Reference: [scraping of fiancial dataset](https://giniceseah.netlify.app/posts/2
 Companies<-read.csv('data/companiesmarketcap.csv')
 ```
 
-####Prepare the data:
+#### Prepare the data:
 
 Only the list of symbols was retained for the subsequent use. `slice_max()` is used to get the top 40 stocks in SGX by *marketcap*.
 
@@ -65,10 +65,13 @@ top40<-Companies%>%
   slice_max(`marketcap`,n=40)%>%
   select(Symbol,Name)
 ```
+
 #### Script data from Yahoo Finance:
 
 The following code is used to manipulate and select the stock symbols within 1 January 2020 to 31 December 2021  from Yahoo Finance as required. The data was returned in daily intervals. 
 `tq_get()` function in tidyquant R packages is used to retrieve date, volume, opening, highest, lowest, closing, and adjusted price.
+`group_by()` function is used to 
+`select()` function is used to retain the symbol, name, data and close price column. 
 
 ```{r echo=TRUE, message=FALSE, warning=FALSE}
 from_date = "2020-01-01"
@@ -89,12 +92,17 @@ rmarkdown::paged_table(stock_data_daily)
 
 ## 4.0 Data Visualization
 
-Build the horizon plots in ggplot2 using geom_horizon():
+Build the horizon plots in ggplot2 using geom_horizon(). 
+  
+   +  Plot the horizon graphParse based on the dataframe *stock_data_daily*. 
+   +  `geom_horizon()` is used to plot the graph.
+   +  `scale_fill_hcl()`is used to adjust the color scheme of graph.
+   +  `facet_grid()`is used to parse the name variable to Y axis.
 
 ```{r echo=T}
 stock_data_daily %>% ggplot() +
   geom_horizon(aes(date, close))+
-  scale_fill_hcl(palette = 'RdBu', reverse = T) + #set the color palette
+  scale_fill_hcl(palette = 'RdBu', reverse = F) + #set the color palette
   facet_grid(Name~.) +
   theme_few() +
   theme(
@@ -113,18 +121,18 @@ stock_data_daily %>% ggplot() +
           'from 1/1/2020 to 31/12/2021')
 ```
 
-Adjust the size of fond, set the x-axis interval to 3 months. 
+Adjust the size of fond, set the x-axis interval to 2 months. 
 
 ```{r}
 stock_data_daily %>% ggplot() +
-  geom_horizon(aes(date, close),origin = "median",horizonscale = 6)+
-  scale_fill_hcl(palette = 'RdBu', reverse = T) + #set the color palette
+  geom_horizon(aes(date, close))+
+  scale_fill_hcl(palette = 'RdBu', reverse = F) + #set the color palette
   facet_grid(Name~.) +
   theme_few() +
   theme(
     panel.spacing.y=unit(0, "lines"),
     strip.text.y = element_text(size = 16, angle = 0, hjust = 0),
-    axis.text.x = element_text(size = 20),
+    axis.text.x = element_text(size = 14),
     axis.text.y = element_blank(),
     axis.title.y = element_blank(),
     axis.ticks.y = element_blank(),
@@ -132,12 +140,93 @@ stock_data_daily %>% ggplot() +
     axis.title=element_text(size=20,face="bold"),
     plot.title = element_text(size=28, face = "bold"),
     plot.subtitle = element_text(size=20, face = "bold")
-    ) +
+    )+
   scale_x_date(expand=c(0,0), 
-               date_breaks = "3 month", 
+               date_breaks = "2 month", 
                date_labels = "%b") +
   xlab('Date') +
   ggtitle('Close price of SGX top 40 by marketcap', 
-          'from 1/1/2020 to 31/12/2021')
+          'from 1/1/2020 to 31/12/2021')+
+   guides(fill= guide_legend(title="stock price +(blue) or -(red)",
+                       title.position = "top")
+          )
+
+
 ```
 
+## 5.0 Peer learning 
+
+Inspired by visualizations shown in the class, consider adopting x-axis intersection Line to highlight the timeline regarding covid-19 related events in Singapore and worldwide. To examine the impact of COVID-19 pandemic and companies' stock price listed in the SGX. 
+
+`geom_vline()` is used to mark the time line.
+
+```{r}
+stock_data_daily %>% ggplot() +
+  geom_horizon(aes(date, close))+
+  scale_fill_hcl(palette = 'RdBu', reverse = F) + #set the color palette
+  geom_vline(xintercept = as.Date("2020-03-19"), linetype = "dotdash", color = "green", size = 0.5) +
+  geom_vline(xintercept = as.Date("2020-03-23"), linetype = "dotdash", color = "green", size = 0.5) +
+  geom_vline(xintercept = as.Date("2020-04-07"), linetype = "dotted", size = 0.5) +
+  geom_vline(xintercept = as.Date("2020-06-01"), linetype = "dotted", size = 0.5) +
+  geom_vline(xintercept = as.Date("2020-12-14"), linetype = "dotted", size = 0.5) +
+  facet_grid(Name~.) +
+  theme_few() +
+  theme(
+    panel.spacing.y=unit(0, "lines"),
+    strip.text.y = element_text(size = 16, angle = 0, hjust = 0),
+    axis.text.x = element_text(size = 14),
+    axis.text.y = element_blank(),
+    axis.title.y = element_blank(),
+    axis.ticks.y = element_blank(),
+    panel.border = element_blank(), 
+    axis.title=element_text(size=20),
+    plot.title = element_text(size=28, face = "bold"),
+    plot.subtitle = element_text(size=20, face = "bold")
+    )+
+  scale_x_date(expand=c(0,0), 
+               date_breaks = "3 month", 
+               date_labels = "%b%Y") +
+  xlab('Date') +
+  ggtitle('Close price of SGX top 40 by marketcap', 
+          'from 1/1/2020 to 31/12/2021')+
+   guides(fill= guide_legend(title="stock price +(blue) or -(red)",
+                       title.position = "top")
+          )
+```
+## 6.0 Observations 
+
+The covid-19 timeline in Singapore/the world according to [straitstimes](https://www.straitstimes.com/singapore/six-months-of-covid-19-in-singapore-a-timeline):
+
+**19 March 2020:**
+  
+* The New York Stock Exchange announced at the day that it would temporarily close its trading floor and move to all-electronic trading beginning on 23 March when two traders tested positive for COVID-19 at screenings set up by the NYSE.
+* The release of the news shook the global stock market drastically, SGX was not the exception.
+
+
+**23 March 2020:** 
+    
+* All short-term visitors barred from entering or transiting in Singapore.
+* The release of this news had a huge impact on the stock market, with almost all 40 stocks dived deep into the bottom.
+
+**7 April 2020:**
+  
+* Circuit breaker measures kick in. Most workplaces are closed, and dining-in at eateries is not allowed.
+* With the implementation of circuit breaker measures, Singapore further restricted its COVID-19 governance measures, causing a big hit to the SGX market.
+
+**1 Jun 2020:**
+    
+* The circuit breaker lifts and Singapore enters Phase One of reopening. Parents and grandparents can receive up to two visitors at once, from the same household.
+* Even With the release of good news, SGX market had very limited positive reaction. The market continued to be sluggish. Rebound seemed far away.
+
+**14 Dec 2020:**
+    
+* PM's deliver the speech which marks the begin of Singapore's attempt to enter into phase 3 and its confidence in reopen. 
+* The releasing of good news encouraged the public and revitalized confidence in the stock market. Around this time all 40 stocks started to show signs of rebound. 
+  
+  From December 2020 till December 2021, even during the wave Delta and Omicron, SGX market shown a good resilience to pressure and the patter of first 6 months of 2020 has not reappeared. 
+  
+  Companies' recovery speed from the hit of COVID-19 vary due to the different traits of their industrie background. Some took little impact from COVID-19, for example, the real estate sector (Keppel), fibre network infrastructure(Netline Trust), even during the first six months in 2020, those two companies still showed great resilience. On the other hand, companies with strong links to the development of cities(dependent on foreign workforce) and tourism suffer the greatest impact. For example, Singapore Airlines and City development have continued to fall and no positive signals have been seen so far.
+
+  
+  
+  
